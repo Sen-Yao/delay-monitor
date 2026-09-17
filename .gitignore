@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.vite/
+data/
+*.log
+
+# Local machine and editor state
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Private investigation notes are kept locally and are not part of the public release.
+docs/network-investigation-2026-06-29.md
+LOCAL_RUN.md
+WINDOWS_CODEX_HANDOFF.md

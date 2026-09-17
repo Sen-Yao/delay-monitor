@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible problem with the monitor.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please remove private addresses, credentials, tokens, and unredacted traceroutes before posting.
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15.5, Ubuntu 24.04, Windows 11
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      placeholder: node --version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Commands run and the smallest redacted output that demonstrates the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

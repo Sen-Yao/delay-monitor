@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "description": "Anonymized aggregate of local latency-monitoring sessions.",
+  "privacy": {
+    "endpointNames": "role labels only",
+    "rawSamples": false,
+    "wallClockTimestamps": false,
+    "countsRounded": true,
+    "latencyRoundedToMs": 1
+  },
+  "method": {
+    "probe": "single-packet ICMP samples",
+    "aggregation": "successful samples grouped by anonymized target role",
+    "nonOkSamples": "timeouts and probe errors are counted separately"
+  },
+  "targets": [
+    {
+      "label": "near-gateway target",
+      "samples": 68900,
+      "successfulSamples": 68700,
+      "nonOkSamples": 200,
+      "meanRttMs": 10.2,
+      "p95RttMs": 38.4,
+      "maxRttMs": 585.3
+    },
+    {
+      "label": "upstream-gateway target",
+      "samples": 68900,
+      "successfulSamples": 68700,
+      "nonOkSamples": 200,
+      "meanRttMs": 11.9,
+      "p95RttMs": 50.9,
+      "maxRttMs": 499.6
+    },
+    {
+      "label": "public endpoint",
+      "samples": 33600,
+      "successfulSamples": 32900,
+      "nonOkSamples": 700,
+      "meanRttMs": 42.4,
+      "p95RttMs": 135.2,
+      "maxRttMs": 566.8
+    }
+  ],
+  "incidents": {
+    "total": 300,
+    "highLatency": 129,
+    "jitter": 139,
+    "packetLoss": 13,
+    "timeout": 19
+  }
+}

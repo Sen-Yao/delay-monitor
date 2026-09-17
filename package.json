@@ -1,0 +1,41 @@
+{
+  "name": "delay-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local-first monitor for diagnosing intermittent network latency.",
+  "license": "MIT",
+  "author": "Sen-Yao",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sen-Yao/delay-monitor.git"
+  },
+  "homepage": "https://github.com/Sen-Yao/delay-monitor",
+  "bugs": {
+    "url": "https://github.com/Sen-Yao/delay-monitor/issues"
+  },
+  "keywords": ["network-monitoring", "latency", "diagnostics", "icmp", "traceroute", "vite", "react"],
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"tsx watch server/index.ts\" \"vite --host 127.0.0.1\"",
+    "build": "tsc -p tsconfig.server.json && vite build",
+    "preview": "NODE_ENV=production node dist/server/server/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "lucide-react": "^0.468.0",
+    "vite": "^7.2.7",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3"
+  }
+}
