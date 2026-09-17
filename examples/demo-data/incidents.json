@@ -1,0 +1,54 @@
+[
+  {
+    "id": "demo-incident-latency",
+    "sessionId": "demo-session",
+    "targetId": "lol-current",
+    "start": 1735690200000,
+    "end": 1735690260000,
+    "type": "high_latency",
+    "severity": "warn",
+    "summary": {
+      "avg": 92.4,
+      "max": 148.2,
+      "p95": 142.7,
+      "jitter": 21.6,
+      "loss": 0
+    },
+    "samplesBefore": [],
+    "samplesAfter": [],
+    "networkStatus": {
+      "checkedAt": 1735690200000,
+      "defaultGateway": "127.0.0.1",
+      "activeInterface": "loopback0",
+      "tunInterfaces": [],
+      "hasProxyLikeRoute": false,
+      "notes": []
+    }
+  },
+  {
+    "id": "demo-incident-jitter",
+    "sessionId": "demo-session",
+    "targetId": "local-b",
+    "start": 1735690080000,
+    "end": 1735690140000,
+    "type": "jitter",
+    "severity": "warn",
+    "summary": {
+      "avg": 18.2,
+      "max": 76.1,
+      "p95": 70.4,
+      "jitter": 24.8,
+      "loss": 0
+    },
+    "samplesBefore": [],
+    "samplesAfter": [],
+    "networkStatus": {
+      "checkedAt": 1735690080000,
+      "defaultGateway": "127.0.0.1",
+      "activeInterface": "loopback0",
+      "tunInterfaces": [],
+      "hasProxyLikeRoute": false,
+      "notes": []
+    }
+  }
+]

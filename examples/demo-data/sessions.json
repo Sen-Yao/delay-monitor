@@ -1,0 +1,14 @@
+[
+  {
+    "id": "demo-session",
+    "start": 1735689600000,
+    "end": 1735690500000,
+    "targets": ["local-a", "local-b", "external"],
+    "incidents": 2,
+    "avg": 12.4,
+    "max": 148.2,
+    "p95": 45.6,
+    "jitter": 18.3,
+    "loss": 0.012
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "selectedLolServerId": "public-test",
+  "lolServers": [
+    {
+      "id": "public-test",
+      "name": "测试外部目标",
+      "host": "127.0.0.1",
+      "method": "icmp",
+      "note": "Loopback demo target"
+    }
+  ]
+}

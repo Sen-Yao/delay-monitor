@@ -1,0 +1,29 @@
+[
+  {
+    "id": "local-a",
+    "name": "本地链路 A",
+    "group": "local",
+    "host": "127.0.0.1",
+    "method": "icmp",
+    "intervalMs": 1000,
+    "enabled": true
+  },
+  {
+    "id": "local-b",
+    "name": "本地链路 B",
+    "group": "local",
+    "host": "127.0.0.1",
+    "method": "icmp",
+    "intervalMs": 1000,
+    "enabled": true
+  },
+  {
+    "id": "external",
+    "name": "测试外部目标",
+    "group": "lol",
+    "host": "127.0.0.1",
+    "method": "icmp",
+    "intervalMs": 1000,
+    "enabled": true
+  }
+]
