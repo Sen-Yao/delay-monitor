@@ -1,33 +1,32 @@
 # Delay Monitor
 
-一个本地优先的网络延迟监测器，用来定位「本地链路正常、上游链路偶发抖动」这类难以复现的问题。探测和数据存储都在本机完成，不上传监测数据，也不依赖第三方观测服务。
+看清延迟从哪里开始变高。
 
 [![CI](https://github.com/Sen-Yao/delay-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/Sen-Yao/delay-monitor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-English documentation is available below the Chinese documentation. 中文是默认阅读入口。
+中文 · [English](#english)
 
-![Delay Monitor dashboard](docs/screenshots/dashboard.png)
+打游戏突然卡一下，网页偶尔转圈，却又很难在事后复现？Delay Monitor 会同时观察本地路由器、上游网关和公网目标，把延迟曲线、丢包和异常片段放在一起，方便对照。
 
-## 功能
+它是一个跑在本机的小工具：浏览器看面板，Node.js 做探测，记录保存在本地文件里。无需账号，也不用接入监控平台。
 
-- 使用 ICMP 或 TCP 探测可配置目标，并通过浏览器实时显示最新结果。
-- 基于滚动基线识别高延迟、抖动、丢包和超时。
-- 将会话和 traceroute 结果保存在本地 JSON 文件，方便事后比较。
-- 报告默认路由及可能影响测量的 TUN/代理接口。
-- 运行数据留在运行监测器的机器上，没有分析上报接口或托管后端。
+![Delay Monitor 实时面板](docs/screenshots/dashboard.png)
 
-```mermaid
-flowchart LR
-  UI[浏览器界面] <-->|本地 HTTP / SSE| API[Node.js API]
-  API --> P[ICMP / TCP / traceroute]
-  API --> N[路由与接口检查]
-  API --> S[(本地 JSON 存储)]
-```
+<sub>截图使用回环地址演示数据，网关与接口信息已替换为示例值。</sub>
 
-## 快速开始
+## 能做什么
 
-要求：Node.js 22.12 或更高版本，以及 npm。当前原生探测实现面向 macOS；Linux 和 Windows 需要适配命令路径、参数和输出解析。CI 在 Linux 上验证构建与单元测试，不执行真实网络探测。
+- **一起看几段链路**：同时观察多个目标的延迟，支持 ICMP 和 TCP 探测。
+- **留下卡顿时的线索**：记录高延迟、抖动、丢包、超时和前后样本。
+- **按会话回看**：开始一次记录，结束后查看这段时间的统计。
+- **补一张路径快照**：手动运行 traceroute，结合默认路由和代理/TUN 提示排查。
+
+界面目前以中文为主，保留了 LOL 大区目标配置，普通网络目标也可以使用。
+
+## 跑起来
+
+需要 **macOS、Node.js 22.12+ 和 npm**。Linux / Windows 的原生探测还需要适配，见 [平台说明](docs/platform-notes.md)。
 
 ```bash
 git clone https://github.com/Sen-Yao/delay-monitor.git
@@ -36,85 +35,80 @@ npm ci
 npm run dev
 ```
 
-打开 <http://127.0.0.1:5173>，API 监听 <http://127.0.0.1:8787>。
+打开 **<http://127.0.0.1:5173>**，到「目标」页面填入自己的地址。API 默认运行在 `127.0.0.1:8787`。
 
-生产模式本地运行：
+启动后会自动采样。默认配置里的两个私网地址只是常见示例，记得按自己的网络修改。
+
+想运行构建后的版本：
 
 ```bash
 npm run build
-NODE_ENV=production npm run preview
+npm run preview
 ```
 
-服务器第一次启动时会创建 `data/`。该目录被 Git 忽略，因为里面可能有私人地址、路由信息和大量样本。请在「目标」页面配置探测目标，或先停止服务器再编辑本地 JSON 文件。
+然后打开 <http://127.0.0.1:8787>。
 
-## 公开结果与演示数据
+## 怎么看结果
 
-[`examples/public-results/summary.json`](examples/public-results/summary.json) 是按匿名目标聚合并四舍五入后的公开结果。它保留延迟信号的形状，但不包含原始样本、端点地址、设备名、SSID、会话 ID 或本地时间戳。生成规则和统计限制见 [`examples/public-results/README.md`](examples/public-results/README.md)。
+先选几个有对照意义的目标，例如本地路由器、上游网关和一个公网地址，观察它们是否在同一时间出现尖峰。如果只有某个目标异常，再结合路径快照进一步排查。
 
-`examples/demo-data/` 提供只使用回环地址的微型演示数据，可用于截图或手动体验界面。它们是演示端点，不是性能基准。
+面板给的是排查线索：ICMP 超时不一定代表业务断网，图里的相邻目标延迟差也不等于精确的逐跳耗时。目标顺序需要自己确认，工具不会自动发现完整拓扑。
 
-历史外部目标组的 p95 高于两个本地目标组，这正是本工具希望帮助发现的尾延迟差异。由于采集期间目标地址曾变化，聚合结果不能指向固定跳点或证明根因；它只描述一组本地测量，不代表任何运营商或游戏服务的基准。
+仓库里放了两份样例：
 
-## 命令
+- [脱敏统计](examples/public-results/)：来自历史采样，附统计口径和限制。
+- [演示数据](examples/demo-data/)：回环地址和预设事件，用于体验界面，不代表真实网络表现。
 
-| 命令 | 用途 |
-| --- | --- |
-| `npm run dev` | 启动 API 和 Vite 开发服务器。 |
-| `npm run build` | 检查服务端类型并构建浏览器包。 |
-| `npm run preview` | 在本地提供生产构建。 |
-| `npm test` | 运行 Vitest 测试。 |
-| `npm run typecheck` | 在不生成文件的情况下检查客户端和服务端 TypeScript。 |
+## 记录存在哪
 
-## 项目结构
+首次启动会创建 `data/`，配置、采样、异常事件和路径记录都在这里。这个目录不进 Git，也不会被应用上传。
 
-```text
-server/                  探测、采样、异常检测和 JSON 存储
-src/                     React 界面与共享 TypeScript 类型
-examples/public-results/ 可公开的匿名聚合结果
-examples/demo-data/      截图和 UI 演示用回环地址样例
-docs/                    公开使用说明和平台备注
+`samples.jsonl` 会持续增长，目前没有自动清理。备份或整理数据前先停服务；分享记录时，注意里面可能有真实地址和路由信息。
+
+服务只适合本机使用，没有登录验证，请不要通过端口转发或公共隧道暴露到外网。
+
+## 开发
+
+React + TypeScript + Vite，后端使用 Node.js。界面在 `src/`，探测、采样和存储在 `server/`，两端共用 `src/shared/types.ts`。
+
+```bash
+npm test             # 单元测试
+npm run typecheck    # 类型检查
+npm run build        # 构建
 ```
 
-## 测量说明
+目前原生命令和参数按 macOS 实现。Linux CI 通过表示测试与构建通过，不代表已支持 Linux 网络探测。
 
-检测器只根据近期样本工作，刻意不直接宣称根因。高延迟事件表示观测目标越过了滚动阈值，不证明该目标造成了问题。请对比多个目标、多个会话和路径结果后再下结论。
+欢迎带着问题、解析器样例或平台适配来提 [Issue](https://github.com/Sen-Yao/delay-monitor/issues) / PR。提交前可参考 [贡献指南](CONTRIBUTING.md)，日志和截图请先脱敏。
 
-当前实现使用 `/sbin/ping`、`/usr/sbin/traceroute`、`/usr/sbin/netstat` 和 `/sbin/ifconfig`，并采用 macOS 参数。Linux 和 Windows 用户需要适配这些命令分支；[`docs/platform-notes.md`](docs/platform-notes.md) 记录了相关差异。
+## License
 
-## 隐私与安全
+[MIT](LICENSE) © Sen-Yao
 
-目标由用户提供，可能暴露私人网络。分享前请检查生成文件。不要提交密码、Wi-Fi 密钥、路由器会话值、Cookie、私人 IP 地址或未脱敏的 traceroute。公开仓库默认不会跟踪实时运行数据。
+---
 
-这是一个没有身份验证的本地诊断工具，请保持它绑定在 loopback，不要通过端口转发或公共隧道暴露。采样会在启动时自动开始，原始样本文件也会持续增长且没有轮转；分享前请先停止服务并检查 `data/`。
-
-## 贡献
-
-欢迎提交 Bug、解析器样例、平台支持和文档改进。提交 Issue 或 Pull Request 前请阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
-
-## 许可证
-
-本项目采用 [MIT License](LICENSE) 发布。
-
+<a id="english"></a>
 <details>
-<summary>English documentation</summary>
+<summary>English</summary>
 
-## Overview
+## Delay Monitor
 
-Delay Monitor is a local-first network latency monitor for investigating intermittent spikes such as a stable local link followed by a noisy upstream path. Probes and storage stay on the machine running the monitor; there is no telemetry endpoint or hosted backend.
+Compare latency across your local network and beyond.
 
-![Delay Monitor dashboard](docs/screenshots/dashboard.png)
+Delay Monitor puts several targets on one dashboard so you can compare their latency spikes, packet loss, and incident history. It runs on your own machine: a browser dashboard, a Node.js probe server, and local files for storage. No account or monitoring service required.
+
+The interface is currently Chinese. It includes a configurable LOL target alongside local network targets.
 
 ### Features
 
-- Poll configurable targets with ICMP or TCP probes and stream the latest values to the browser.
-- Detect high latency, jitter, packet loss, and timeouts against a rolling baseline.
-- Store sessions and traceroute results in local JSON files for later comparison.
-- Report the default route and possible TUN/proxy interfaces that can affect measurements.
-- Keep runtime output local with no analytics service.
+- Watch multiple targets with ICMP or TCP probes.
+- Keep high-latency, jitter, packet-loss, and timeout events with surrounding samples.
+- Record sessions and review their statistics.
+- Run traceroute on demand and inspect default-route and TUN/proxy hints.
 
-### Quick start
+### Get started
 
-Requirements: Node.js 22.12+ and npm. Native probing currently targets macOS; Linux and Windows need command, argument, and parser adaptations. Linux CI verifies the build and unit tests without running live network probes.
+Requires **macOS, Node.js 22.12+, and npm**. Native probing on Linux and Windows still needs adaptation; see [platform notes](docs/platform-notes.md).
 
 ```bash
 git clone https://github.com/Sen-Yao/delay-monitor.git
@@ -123,47 +117,47 @@ npm ci
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. The API listens on <http://127.0.0.1:8787>.
+Open **<http://127.0.0.1:5173>** and configure your addresses in the **目标** (Targets) tab. The API runs on `127.0.0.1:8787`.
 
-For a production-style local run:
+Sampling starts automatically. The two default private addresses are examples; change them to match your network.
+
+To run the built version:
 
 ```bash
 npm run build
-NODE_ENV=production npm run preview
+npm run preview
 ```
 
-The server creates `data/` on first start. Git ignores this directory because it can contain private addresses, route information, and high-volume samples. Configure targets from the **目标** view or edit local JSON files after stopping the server.
+Then open <http://127.0.0.1:8787>.
 
-### Public results and demo data
+### Reading the dashboard
 
-[`examples/public-results/summary.json`](examples/public-results/summary.json) is an anonymized and rounded aggregate. It preserves the shape of the latency signal without publishing raw samples, endpoint addresses, device names, SSIDs, session IDs, or wall-clock timestamps. See [`examples/public-results/README.md`](examples/public-results/README.md) for the method and limitations.
+Compare targets such as a local router, an upstream gateway, and a public endpoint. Look for spikes at the same time, then use a route snapshot to investigate further.
 
-`examples/demo-data/` contains a tiny loopback-only fixture for screenshots and manual UI demos. These are demo endpoints, not a benchmark.
+Treat the dashboard as evidence for troubleshooting. An ICMP timeout does not necessarily mean application traffic failed, and differences between target RTTs are not exact per-hop delays. You must confirm the target order yourself; the tool does not discover a complete topology.
 
-The historical external-target group has a higher p95 than the two local-target groups. Addresses changed during collection, so the aggregate cannot identify a fixed hop or establish root cause; it describes one local measurement set rather than any provider or game-service benchmark.
+The repository includes [anonymized historical statistics](examples/public-results/) and [loopback demo fixtures](examples/demo-data/). The screenshot above uses demo targets with gateway and interface details replaced by placeholders; it is not a performance benchmark.
 
-### Commands
+### Data and local access
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the API and Vite development server. |
-| `npm run build` | Type-check the server and build the browser bundle. |
-| `npm run preview` | Serve the production bundle locally. |
-| `npm test` | Run the Vitest suite. |
-| `npm run typecheck` | Run client and server TypeScript checks without emitting files. |
+Configuration, samples, incidents, sessions, and route snapshots live in `data/`. Git ignores this directory and the application does not upload it. `samples.jsonl` grows without automatic rotation, so stop the server before backing up or cleaning it. Redact addresses and route details before sharing records.
 
-### Measurement and platform notes
+There is no authentication. Keep the service on loopback and do not expose it through a public tunnel or port forwarding.
 
-The detector works from recent samples and deliberately avoids claiming root cause. A high-latency incident means that the observed target crossed a rolling threshold; it does not prove that target caused the problem. Compare multiple targets, sessions, and routes before drawing a conclusion.
+### Development
 
-The implementation currently calls `/sbin/ping`, `/usr/sbin/traceroute`, `/usr/sbin/netstat`, and `/sbin/ifconfig` with macOS arguments. Linux and Windows users need to adapt these command branches; [`docs/platform-notes.md`](docs/platform-notes.md) records the differences.
+React, TypeScript, and Vite power the UI in `src/`. The Node.js backend lives in `server/`; shared types are in `src/shared/types.ts`.
 
-### Privacy and security
+```bash
+npm test
+npm run typecheck
+npm run build
+```
 
-Targets are user supplied and may identify a private network. Review generated files before sharing them. Do not commit passwords, Wi-Fi keys, router session values, cookies, private IP addresses, or unredacted traceroutes. Keep this unauthenticated diagnostic tool bound to loopback; do not expose it through port forwarding or a public tunnel. Sampling starts automatically and raw sample storage grows without rotation.
+Native command paths and arguments currently target macOS. Linux CI covers unit tests and builds, not live probes.
 
-### Contributing and license
+Issues, parser fixtures, and platform contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and redact logs or screenshots before posting.
 
-Bug reports, parser fixtures, platform support, and documentation improvements are welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening an issue or pull request. The project is released under the [MIT License](LICENSE).
+[MIT](LICENSE) © Sen-Yao
 
 </details>
