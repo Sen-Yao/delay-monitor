@@ -6,25 +6,26 @@
     "rawSamples": false,
     "wallClockTimestamps": false,
     "countsRounded": true,
-    "latencyRoundedToMs": 1
+    "latencyRoundedToMs": 0.1
   },
   "method": {
     "probe": "single-packet ICMP samples",
-    "aggregation": "successful samples grouped by anonymized target role",
-    "nonOkSamples": "timeouts and probe errors are counted separately"
+    "aggregation": "successful samples grouped by anonymized target ID; endpoint addresses may have changed",
+    "nonOkSamples": "timeouts and probe errors only; disabled samples are excluded",
+    "counts": "each count independently rounded to nearest hundred"
   },
   "targets": [
     {
-      "label": "near-gateway target",
-      "samples": 68900,
-      "successfulSamples": 68700,
+      "label": "local target A",
+      "samples": 69000,
+      "successfulSamples": 68800,
       "nonOkSamples": 200,
       "meanRttMs": 10.2,
       "p95RttMs": 38.4,
       "maxRttMs": 585.3
     },
     {
-      "label": "upstream-gateway target",
+      "label": "local target B",
       "samples": 68900,
       "successfulSamples": 68700,
       "nonOkSamples": 200,
@@ -33,16 +34,17 @@
       "maxRttMs": 499.6
     },
     {
-      "label": "public endpoint",
-      "samples": 33600,
+      "label": "configurable external target",
+      "samples": 33200,
       "successfulSamples": 32900,
-      "nonOkSamples": 700,
+      "nonOkSamples": 300,
       "meanRttMs": 42.4,
       "p95RttMs": 135.2,
       "maxRttMs": 566.8
     }
   ],
   "incidents": {
+    "scope": "latest 300 retained records, not all historical incidents; counts are exact",
     "total": 300,
     "highLatency": 129,
     "jitter": 139,

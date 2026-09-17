@@ -1,6 +1,6 @@
 # Platform notes
 
-The UI and API are portable Node.js code, while the first probe implementation uses Unix command paths. On macOS and Linux, the server expects `ping`, `traceroute`, `netstat`, and `ifconfig` at the paths shown below.
+The UI and API use Node.js, while native diagnostics currently use macOS command paths and arguments. Linux is not yet supported end to end: executable locations, `ping -W` units, route output, and installed interface utilities can differ. Windows needs native command branches and parser fixtures as well.
 
 | Capability | Current command | Windows equivalent to consider |
 | --- | --- | --- |
